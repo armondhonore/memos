@@ -1,0 +1,12 @@
+application:
+  name: memos
+  pods:
+    - name: app
+      image: neosmemo/memos:stable
+      path: /
+      servicePorts:
+        - 5230
+      volumes:
+        - name: data
+          mountPath: /var/opt/memos
+          size: 5Gi
