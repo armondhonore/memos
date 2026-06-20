@@ -15,7 +15,7 @@
 
 ## Project Summary
 <!-- nexlayer:section agent-managed=project_summary -->
-Memos is an open-source, self-hosted, markdown-native note-taking tool designed for quick capture and lightweight personal knowledge management.
+Memos is an open-source, self-hosted note-taking tool designed for quick capture and markdown-native content management.
 <!-- nexlayer:end -->
 
 ## Technology Stack
@@ -23,18 +23,17 @@ Memos is an open-source, self-hosted, markdown-native note-taking tool designed 
 | Name | Kind | Version | Detected From |
 |------|------|---------|---------------|
 | Go | language | 1.26.2 | go.mod |
-| Echo | framework | 5.1.0 | go.mod |
-| SQLite | database | 1.50.0 | go.mod |
-| PostgreSQL | database | not specified | go.mod |
-| MySQL | database | not specified | go.mod |
-| gRPC | infra | 1.80.0 | go.mod |
+| SQLite | database | latest | Dockerfile, go.mod |
+| Echo | framework | v5.1.0 | go.mod |
+| gRPC | framework | v1.80.0 | go.mod |
+| Alpine Linux | infra | 3.20 | Dockerfile |
 <!-- nexlayer:end -->
 
 ## Repository Structure
 <!-- nexlayer:section agent-managed=structure_map -->
-- cmd/ — Application entry points
-- internal/ — Private application business logic
-- server/ — HTTP and gRPC server implementations
+- cmd/memos — Entry point for the server application
+- internal/ — Core business logic and internal packages
+- server/ — HTTP and gRPC server implementation
 - store/ — Database persistence layer
 - web/ — Frontend assets and templates
 - proto/ — Protocol Buffer definitions for API
@@ -44,8 +43,9 @@ Memos is an open-source, self-hosted, markdown-native note-taking tool designed 
 <!-- nexlayer:section agent-managed=external_deps -->
 Services that must be configured separately (not deployed by Nexlayer):
 
-- AWS S3 (for storage backend)
-- OpenAI/Google Gemini (for AI features)
+- AWS S3 (for optional storage)
+- OpenAI API (for AI features)
+- Google GenAI (for AI features)
 <!-- nexlayer:end -->
 
 ## Local Development Setup
@@ -86,14 +86,13 @@ application:
   name: memos
   pods:
     - name: app
-      image: "registry.nexlayer.io/user_01kece1xyh817dwff7wnarhkxd/memos:9ee6055-fix1"
+      image: "registry.nexlayer.io/user_01kece1xyh817dwff7wnarhkxd/memos:19ee647c1a7"
       path: /
       servicePorts:
         - 5230
       vars:
         PORT: "5230"
 ```
-
 <!-- nexlayer:end -->
 
 ## Nexlayer Deployment Plan
@@ -120,7 +119,7 @@ application:
 
 ## Nexlayer Configuration
 <!-- nexlayer:section agent-managed=nexlayer_config -->
-**Last deployed:** 2026-06-20T17:21:24Z  
+**Last deployed:** 2026-06-20T18:33:22Z  
 **Live URL:** https://relaxed-weasel-memos.cloud.nexlayer.ai  
 **Runtime:**  · **Port:** auto-detected  
 **Deploy branch:** nexlayer  
@@ -130,7 +129,7 @@ application:
   name: memos
   pods:
     - name: app
-      image: "registry.nexlayer.io/user_01kece1xyh817dwff7wnarhkxd/memos:9ee6055-fix1"
+      image: "registry.nexlayer.io/user_01kece1xyh817dwff7wnarhkxd/memos:19ee647c1a7"
       path: /
       servicePorts:
         - 5230
@@ -143,6 +142,7 @@ application:
 <!-- nexlayer:section agent-managed=build_history -->
 | Date | Status | Notes |
 |------|--------|-------|
-| 2026-06-20T17:13:11Z | analyzed | initial repo analysis |
-| 2026-06-20T17:21:24Z | success | deployed https://relaxed-weasel-memos.cloud.nexlayer.ai |
+| 2026-06-20T18:25:47Z | analyzed | initial repo analysis |
+| 2026-06-20T18:33:22Z | success | deployed https://relaxed-weasel-memos.cloud.nexlayer.ai |
 <!-- nexlayer:end -->
+
