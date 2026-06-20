@@ -7,4 +7,9 @@ application:
       servicePorts:
         - 5230
       vars:
-        PORT: "5230"
+        MEMOS_PORT: "5230"
+        MEMOS_DATA: "/var/opt/memos"
+      volumes:
+        - name: data
+          mountPath: /var/opt/memos
+          size: 5Gi

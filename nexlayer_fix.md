@@ -4,15 +4,15 @@ This file is the authoritative, pinned build solution for this repo. Nexlayer us
 
 ## CRITICAL BUILD CONSTRAINTS
 
-1. **CMD must pass `--port 5230 --data /var/opt/memos`** — the memos binary defaults to port 8081, which does not match the exposed/routed port 5230. Without explicit CMD args, Nexlayer's health check probes port 5230 and gets no response (HTTP 503).
+1. **MEMOS_PORT=5230 and MEMOS_DATA=/var/opt/memos MUST be set as env vars** — memos uses `viper.SetEnvPrefix("memos")` + `viper.AutomaticEnv()`, so env vars `MEMOS_PORT` and `MEMOS_DATA` override the CLI defaults (port 8081, data ""). The server-injected Dockerfile does not pass CMD args, so env vars are the only reliable way to configure these values.
 
 2. **CGO_ENABLED=1 required** — memos uses go-sqlite3 which requires CGO. Build with `CGO_ENABLED=1`.
 
 3. **sqlite-dev (build) and sqlite-libs (runtime) both required** — CGO compilation needs `sqlite-dev`; the final alpine image needs `sqlite-libs` to load the shared library at runtime.
 
-4. **Data volume at /var/opt/memos required** — the SQLite database (`memos_prod.db`) must persist across restarts. Without a volume the DB is lost on pod restart.
+4. **Data volume at /var/opt/memos required** — the SQLite database (`memos_prod.db`) must persist across restarts. Without a volume the DB is lost on pod restart. The MEMOS_DATA env var must point to this mount path.
 
-5. **Do not change the port in nexlayer.yaml** — keep `servicePorts: [5230]` to match the CMD.
+5. **Do not change the port in nexlayer.yaml** — keep `servicePorts: [5230]` to match MEMOS_PORT.
 
 ## Fixed Dockerfile
 
@@ -45,7 +45,8 @@ application:
       servicePorts:
         - 5230
       vars:
-        PORT: "5230"
+        MEMOS_PORT: "5230"
+        MEMOS_DATA: "/var/opt/memos"
       volumes:
         - name: data
           mountPath: /var/opt/memos
