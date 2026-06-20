@@ -115,13 +115,14 @@ func init() {
 
 	viper.SetDefault("demo", false)
 	viper.SetDefault("driver", "sqlite")
-	viper.SetDefault("port", 8081)
+	viper.SetDefault("port", 5230)
+	viper.SetDefault("data", "/var/opt/memos")
 
 	rootCmd.PersistentFlags().Bool("demo", false, "enable demo mode")
 	rootCmd.PersistentFlags().String("addr", "", "address of server")
-	rootCmd.PersistentFlags().Int("port", 8081, "port of server")
+	rootCmd.PersistentFlags().Int("port", 5230, "port of server")
 	rootCmd.PersistentFlags().String("unix-sock", "", "path to the unix socket, overrides --addr and --port")
-	rootCmd.PersistentFlags().String("data", "", "data directory")
+	rootCmd.PersistentFlags().String("data", "/var/opt/memos", "data directory")
 	rootCmd.PersistentFlags().String("driver", "sqlite", "database driver")
 	rootCmd.PersistentFlags().String("dsn", "", "database source name(aka. DSN)")
 	rootCmd.PersistentFlags().String("instance-url", "", "the url of your memos instance")
