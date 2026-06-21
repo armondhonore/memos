@@ -1,16 +1,16 @@
 application:
   name: memos
   pods:
-    - name: app
-      image: "."
-      path: /
-      servicePorts:
-        - 5230
-      vars:
-        MEMOS_PORT: "5230"
-        MEMOS_DATA: "/var/opt/memos"
-        MEMOS_ADDR: "0.0.0.0"
-      volumes:
-        - name: data
-          mountPath: /var/opt/memos
-          size: 5Gi
+  - name: app
+    image: "neosmemo/memos:stable"
+    path: /
+    servicePorts:
+    - 5230
+    vars:
+      MEMOS_PORT: "5230"
+      MEMOS_ADDR: "0.0.0.0"
+      MEMOS_DATA: "/var/opt/memos"
+    volumes:
+    - name: memos-data
+      mountPath: /var/opt/memos
+      size: 5Gi
