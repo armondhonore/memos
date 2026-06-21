@@ -2,9 +2,15 @@ application:
   name: memos
   pods:
     - name: app
-      image: "registry.nexlayer.io/user_01kece1xyh817dwff7wnarhkxd/memos:19ee6bf23de"
+      image: "."
       path: /
       servicePorts:
         - 5230
       vars:
-        PORT: "5230"
+        MEMOS_PORT: "5230"
+        MEMOS_DATA: "/var/opt/memos"
+        MEMOS_ADDR: "0.0.0.0"
+      volumes:
+        - name: data
+          mountPath: /var/opt/memos
+          size: 5Gi

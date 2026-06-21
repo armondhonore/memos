@@ -4,20 +4,20 @@ This file is the authoritative, pinned build solution for this repo. Nexlayer us
 
 ## CRITICAL BUILD CONSTRAINTS
 
-1. **MEMOS_PORT=5230 and MEMOS_DATA=/var/opt/memos MUST be set as env vars** — memos uses `viper.SetEnvPrefix("memos")` + `viper.AutomaticEnv()`, so env vars `MEMOS_PORT` and `MEMOS_DATA` override the CLI defaults (port 8081, data ""). The server-injected Dockerfile does not pass CMD args, so env vars are the only reliable way to configure these values.
+1. **MEMOS_PORT=5230, MEMOS_ADDR=0.0.0.0, MEMOS_DATA=/var/opt/memos MUST all be set** — memos uses `viper.SetEnvPrefix("memos")` + `viper.AutomaticEnv()`, so env vars `MEMOS_PORT`, `MEMOS_ADDR`, and `MEMOS_DATA` map to the `port`, `addr`, and `data` config keys. MEMOS_ADDR=0.0.0.0 forces binding on all interfaces (not just 127.0.0.1).
 
 2. **CGO_ENABLED=1 required** — memos uses go-sqlite3 which requires CGO. Build with `CGO_ENABLED=1`.
 
 3. **sqlite-dev (build) and sqlite-libs (runtime) both required** — CGO compilation needs `sqlite-dev`; the final alpine image needs `sqlite-libs` to load the shared library at runtime.
 
-4. **Data volume at /var/opt/memos required** — the SQLite database (`memos_prod.db`) must persist across restarts. Without a volume the DB is lost on pod restart. The MEMOS_DATA env var must point to this mount path.
+4. **RUN mkdir -p /var/opt/memos required** — create the data directory in the image so SQLite can write its database file on first start.
 
 5. **Do not change the port in nexlayer.yaml** — keep `servicePorts: [5230]` to match MEMOS_PORT.
 
 ## Fixed Dockerfile
 
 ```dockerfile
-FROM mirror.gcr.io/library/golang:1.26-alpine AS builder
+FROM mirror.gcr.io/library/golang:1.22-alpine AS builder
 RUN apk add --no-cache gcc musl-dev sqlite-dev
 WORKDIR /src
 COPY go.mod go.sum ./
@@ -26,11 +26,11 @@ COPY . .
 RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-w -s" -o /app/server ./cmd/memos
 
 FROM mirror.gcr.io/library/alpine:3.20
-RUN apk add --no-cache ca-certificates tini sqlite-libs
+RUN apk add --no-cache ca-certificates tini sqlite-libs && mkdir -p /var/opt/memos
 COPY --from=builder /app/server /app/server
 EXPOSE 5230
 ENTRYPOINT ["/sbin/tini", "--", "/app/server"]
-CMD ["--port", "5230", "--data", "/var/opt/memos"]
+CMD ["--port", "5230", "--addr", "0.0.0.0", "--data", "/var/opt/memos"]
 ```
 
 ## Fixed nexlayer.yaml
@@ -46,6 +46,7 @@ application:
         - 5230
       vars:
         MEMOS_PORT: "5230"
+        MEMOS_ADDR: "0.0.0.0"
         MEMOS_DATA: "/var/opt/memos"
       volumes:
         - name: data
